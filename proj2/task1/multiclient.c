@@ -69,7 +69,6 @@ int main(int argc, char **argv)
 					strcat(buf, tmp);
 					strcat(buf, "\n");
 				}
-				//strcpy(buf, "buy 1 2\n");
 			
 				Rio_writen(clientfd, buf, strlen(buf));
 				// Rio_readlineb(&rio, buf, MAXLINE);
@@ -82,7 +81,7 @@ int main(int argc, char **argv)
 			Close(clientfd);
 			exit(0);
 		}
-		/*	parten process		*/
+		/* parent process */
 		/*else{
 			for(i=0;i<num_client;i++){
 				waitpid(pids[i], &status, 0);
