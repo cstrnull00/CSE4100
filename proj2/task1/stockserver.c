@@ -107,7 +107,7 @@ void check_client (pool *p) {
             p->nready--;
             if((n = Rio_readlineb(&rio, buf, MAXLINE)) != 0) {
                 Fputs(buf, stdout);
-	            Rio_writen(connfd, buf, n);
+	            Rio_writen(connfd, buf, MAXLINE);
             }
             else {
                 Close(connfd);
