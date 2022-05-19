@@ -35,6 +35,8 @@
 #define DEF_UMASK  S_IWGRP|S_IWOTH
 /* $end createmasks */
 
+#define STOCK_NUM 10
+
 /* Simplifies calls to bind(), connect(), and accept() */
 /* $begin sockaddrdef */
 typedef struct sockaddr SA;
@@ -194,6 +196,13 @@ int open_listenfd(char *port);
 int Open_clientfd(char *hostname, char *port);
 int Open_listenfd(char *port);
 
+struct ITEM {
+    int ID;
+    int left_stock;
+    int price;
+    sem_t mutex;
+};
+struct ITEM tree[STOCK_NUM];
 
 #endif /* __CSAPP_H__ */
 /* $end csapp.h */

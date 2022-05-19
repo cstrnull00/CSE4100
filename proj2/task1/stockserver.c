@@ -39,9 +39,8 @@ int main(int argc, char **argv)
     
     FILE* fp;
     fp = fopen("stock.txt", "r");
-    for(int i = 0; i < STOCK_NUM; i++) {
+    for(i = 0; i < STOCK_NUM; i++)
         fscanf(fp, "%d %d %d", &tree[i].ID, &tree[i].left_stock, &tree[i].price);
-    }
     fclose(fp);
 
     if (argc != 2) {
