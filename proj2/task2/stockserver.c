@@ -1,10 +1,9 @@
-/* 
- * echoserveri.c - An iterative echo server 
- */ 
 /* $begin echoserverimain */
 #include "csapp.h"
+#include "sbuf.h"
 
-#define FD_SETSIZE 100
+#define NTHREADS 4
+#define SBUFSIZE 16
 #define STOCK_NUM 10
 
 typedef struct ITEM {
@@ -14,51 +13,47 @@ typedef struct ITEM {
     sem_t mutex;
 } item;
 
-typedef struct {
-    int maxfd;
-    fd_set read_set;
-    fd_set ready_set;
-    int nready;
-    int maxi;
-    int clientfd[FD_SETSIZE];
-    rio_t clientrio[FD_SETSIZE];
-} pool;
-
-void echo(int connfd);
-
-void *thread(void *vargp) {
-    int connfd = *((int*)vargp);
-    Pthread_detach(pthread_self());
-    Free(vargp);
-    echo(connfd);
-    Close(connfd);
-    return NULL;
-}
-
 item tree[STOCK_NUM];
 
+void echo_cnt(int connfd);
+void *thread(void *vargp);
+
+sbuf_t sbuf; /* Shared buffer of connected descriptors */
+ 
 int main(int argc, char **argv) 
 {
-    int listenfd, *connfdp;
+    int i, listenfd, connfd;
     socklen_t clientlen;
-    struct sockaddr_storage clientaddr;  /* Enough space for any address */  //line:netp:echoserveri:sockaddrstorage
-    pthread_t tid;
+    struct sockaddr_storage clientaddr;
+    pthread_t tid; 
 
     if (argc != 2) {
-	fprintf(stderr, "usage: %s <port>\n", argv[0]);
-	exit(0);
+	    fprintf(stderr, "usage: %s <port>\n", argv[0]);
+	    exit(0);
     }
     listenfd = Open_listenfd(argv[1]);
-    
-    while (1) {
-	    clientlen = sizeof(struct sockaddr_storage); 
-        connfdp = Malloc(sizeof(int));
-        *connfdp = Accept(listenfd, (SA*)&clientaddr, &clientlen);
-        Pthread_create(&tid, NULL, thread, connfdp);
+
+    sbuf_init(&sbuf, SBUFSIZE); //line:conc:pre:initsbuf
+    for (i = 0; i < NTHREADS; i++)  /* Create worker threads */ //line:conc:pre:begincreate
+	    Pthread_create(&tid, NULL, thread, NULL);               //line:conc:pre:endcreate
+
+    while (1) { 
+        clientlen = sizeof(struct sockaddr_storage);
+	    connfd = Accept(listenfd, (SA *) &clientaddr, &clientlen);
+	    sbuf_insert(&sbuf, connfd); /* Insert connfd in buffer */
     }
-    exit(0);
 }
-/* $end echoserverimain */
+
+void *thread(void *vargp) 
+{  
+    Pthread_detach(pthread_self()); 
+    while (1) { 
+	    int connfd = sbuf_remove(&sbuf); /* Remove connfd from buffer */ //line:conc:pre:removeconnfd
+	    echo_cnt(connfd);                /* Service client */
+	    Close(connfd);
+    }
+}
+/* $end echoservertpremain */
 
 /*
 void check_client (pool *p) {
