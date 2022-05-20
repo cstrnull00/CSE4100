@@ -194,6 +194,24 @@ int open_listenfd(char *port);
 int Open_clientfd(char *hostname, char *port);
 int Open_listenfd(char *port);
 
+#define STOCK_NUM 10
+
+typedef struct {
+    int maxfd;
+    fd_set read_set;
+    fd_set ready_set;
+    int nready;
+    int maxi;
+    int clientfd[FD_SETSIZE];
+    rio_t clientrio[FD_SETSIZE];
+} pool;
+
+typedef struct ITEM {
+    int ID;
+    int left_stock;
+    int price;
+} item;
+item tree[STOCK_NUM + 1];
 
 #endif /* __CSAPP_H__ */
 /* $end csapp.h */

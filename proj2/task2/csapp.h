@@ -200,9 +200,12 @@ struct ITEM {
     int ID;
     int left_stock;
     int price;
+    int readcnt;
     sem_t mutex;
+    sem_t w;
 };
-struct ITEM tree[STOCK_NUM];
+
+struct ITEM tree[STOCK_NUM + 1];
 
 #endif /* __CSAPP_H__ */
 /* $end csapp.h */

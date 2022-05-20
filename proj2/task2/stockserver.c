@@ -9,7 +9,7 @@ void trade(int connfd);
 void *thread(void *vargp);
 
 sbuf_t sbuf; /* Shared buffer of connected descriptors */
- 
+
 int main(int argc, char **argv) 
 {
     int i, listenfd, connfd;
@@ -25,8 +25,12 @@ int main(int argc, char **argv)
 
     FILE *fp;
     fp = fopen("stock.txt", "r");
-    for (i = 0; i < STOCK_NUM; i++)
+    for (i = 1; i <= STOCK_NUM; i++) {
         fscanf(fp, "%d %d %d", &tree[i].ID, &tree[i].left_stock, &tree[i].price);
+        tree[i].readcnt = 0;
+        Sem_init(&tree[i].mutex, 0, 1);
+        Sem_init(&tree[i].w, 0, 1);
+    }
     fclose(fp);
 
     sbuf_init(&sbuf, SBUFSIZE); //line:conc:pre:initsbuf
