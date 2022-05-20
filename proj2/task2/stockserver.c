@@ -5,7 +5,7 @@
 #define NTHREADS 4
 #define SBUFSIZE 16
 
-void echo_cnt(int connfd);
+void trade(int connfd);
 void *thread(void *vargp);
 
 sbuf_t sbuf; /* Shared buffer of connected descriptors */
@@ -45,7 +45,7 @@ void *thread(void *vargp)
     Pthread_detach(pthread_self()); 
     while (1) { 
 	    int connfd = sbuf_remove(&sbuf); /* Remove connfd from buffer */ //line:conc:pre:removeconnfd
-	    echo_cnt(connfd);                /* Service client */
+	    trade(connfd);                /* Service client */
 	    Close(connfd);
     }
 }

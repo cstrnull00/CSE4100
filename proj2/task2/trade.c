@@ -2,19 +2,19 @@
  * A thread-safe version of echo that counts the total number
  * of bytes received from clients.
  */
-/* $begin echo_cnt */
+/* $begin trade */
 #include "csapp.h"
 
 static int byte_cnt;  /* Byte counter */
 static sem_t mutex;   /* and the mutex that protects it */
 
-static void init_echo_cnt(void)
+static void init_trade(void)
 {
     Sem_init(&mutex, 0, 1);
     byte_cnt = 0;
 }
 
-void echo_cnt(int connfd) 
+void trade(int connfd) 
 {
     int n; 
     char buf[MAXLINE]; 
@@ -24,16 +24,17 @@ void echo_cnt(int connfd)
     int id, ea;
     char *token; 
 
-    Pthread_once(&once, init_echo_cnt); //line:conc:pre:pthreadonce
+    Pthread_once(&once, init_trade); //line:conc:pre:pthreadonce
     Rio_readinitb(&rio, connfd);        //line:conc:pre:rioinitb
     while((n = Rio_readlineb(&rio, buf, MAXLINE)) != 0 && strncmp(buf, "exit", 4) != 0) {
 	    P(&mutex);
 	    if(strncmp(buf, "show", 4) == 0) {
             write(1, buf, strlen(buf));
             strcpy(buf, "");
+            
             for(int j = 0; j < STOCK_NUM; j++) 
                     sprintf(buf, "%s%d %d %d\n", buf, tree[j].ID, tree[j].left_stock, tree[j].price);
-            }
+        }
         else if (strncmp(buf, "buy", 3) == 0) {
             write(1, buf, strlen(buf));
             token = strtok(buf, " ");
@@ -51,7 +52,7 @@ void echo_cnt(int connfd)
                         strcpy(buf, "Not enough left stock\n");
                     }
                 }
-            }
+        }
         else if (strncmp(buf, "sell", 4) == 0) {
             write(1, buf, strlen(buf));
             token = strtok(buf, " ");
@@ -78,4 +79,4 @@ void echo_cnt(int connfd)
 	    Rio_writen(connfd, buf, MAXLINE);
     }
 }
-/* $end echo_cnt */
+/* $end trade */
