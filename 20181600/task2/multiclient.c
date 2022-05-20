@@ -24,12 +24,6 @@ int main(int argc, char **argv)
 	port = argv[2];
 	num_client = atoi(argv[3]);
 
-	struct timeval start;	/* starting time */
-	struct timeval end;	/* ending time */
-	unsigned long e_usec;	/* elapsed microseconds */
-
-	gettimeofday(&start, 0);	/* mark the start time */
-	
 /*	fork for each client process	*/
 	while(runprocess < num_client){
 		//wait(&state);
@@ -51,7 +45,7 @@ int main(int argc, char **argv)
 				if(option == 0){//show
 					strcpy(buf, "show\n");
 				}
-				if(option == 1){//buy
+				else if(option == 1){//buy
 					int list_num = rand() % STOCK_NUM + 1;
 					int num_to_buy = rand() % BUY_SELL_MAX + 1;//1~10
 
@@ -81,7 +75,7 @@ int main(int argc, char **argv)
 				Rio_readnb(&rio, buf, MAXLINE);
 				Fputs(buf, stdout);
 
-				//usleep(1000000);
+				usleep(1000000);
 			}
 
 			Close(clientfd);
@@ -99,10 +93,18 @@ int main(int argc, char **argv)
 		waitpid(pids[i], &status, 0);
 	}
 
-	gettimeofday(&end, 0);		/* mark the end time */
-	e_usec = ((end.tv_sec * 1000000) + end.tv_usec) - ((start.tv_sec * 1000000) + start.tv_usec);
 
-	printf("elapsed time: %lu microseconds\n", e_usec);
+	/*clientfd = Open_clientfd(host, port);
+	Rio_readinitb(&rio, clientfd);
+
+	while (Fgets(buf, MAXLINE, stdin) != NULL) {
+		Rio_writen(clientfd, buf, strlen(buf));
+		Rio_readlineb(&rio, buf, MAXLINE);
+		Fputs(buf, stdout);
+	}
+
+	Close(clientfd); //line:netp:echoclient:close
+	exit(0);*/
 
 	return 0;
 }
